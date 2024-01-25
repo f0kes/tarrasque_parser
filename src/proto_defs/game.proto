@@ -1,0 +1,73 @@
+syntax = "proto3";
+package dota;
+
+option java_multiple_files = true;
+option java_package = "com.dota2.proto";
+option java_outer_classname = "Dota2GameState";
+
+message Game
+{
+  repeated Hero hero = 1; //100 * 10 = 1000 bytes = 1kb
+  repeated Npc npc = 2; //21 * 100 = 2100 bytes = 2kb
+  repeated Building building = 3; // 6 * 100 = 600 bytes = 1kb
+  optional int32 game_time = 4; //4 bytes
+
+}
+message Hero
+{
+  optional int32 hero_id = 1; //4 bytes
+  optional Team team = 2; //1 byte
+  optional int32 level = 3; //4 bytes
+  optional Position position = 4; //12 bytes
+  optional float health = 5; //4 bytes
+  optional float max_health = 6; //4 bytes
+  optional float mana = 7; //4 bytes
+  optional float max_mana = 8; //4 bytes
+  repeated Ability abilities = 9;// 4 bytes * 6 = 24 bytes
+  optional int32 seen_ago = 10; //4 bytes
+  repeated Item items = 11; // 5 bytes * 6 = 30 bytes
+  optional int32 networth = 12; //4 bytes
+  optional bool alive = 13; //1 byte
+
+  //total = 100 bytes
+}
+message Npc
+{
+  optional int32 npc_id = 1; //4 bytes
+  optional Team team = 2; //1 byte
+  optional Position position = 3; //12 bytes
+  optional int32 seen_ago = 4; //4 bytes
+  //total = 21 bytes
+}
+message Position
+{
+  optional float x = 1;
+  optional float y = 2;
+  optional float z = 3;
+
+  //total = 12 bytes
+}
+message Ability
+{
+  optional float cooldown = 1;
+}
+message Item
+{
+  optional int32 item_id = 1;
+  optional bool cooldown = 3;
+}
+message Building
+{
+  optional int32 building_id = 1;
+  optional Team team = 2;
+  optional bool alive = 3;
+
+  //total = 6 bytes
+}
+enum Team
+{
+  RADIANT = 0;
+  DIRE = 1;
+  NEUTRAL = 2;
+}
+
