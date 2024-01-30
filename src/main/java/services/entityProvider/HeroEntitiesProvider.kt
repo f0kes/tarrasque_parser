@@ -1,5 +1,6 @@
 package services.entityProvider
 
+import services.Disposable
 import services.Services
 import services.entityPropertyGetter.getEntityProperty
 import services.entityUpdateProvider.EntityUpdate
@@ -7,7 +8,7 @@ import services.entityUpdateProvider.EntityUpdateProvider
 import skadistats.clarity.model.Entity
 
 
-class HeroEntitiesProvider() : EntitiesProvider {
+class HeroEntitiesProvider() : EntitiesProvider, Disposable {
 
     private val entityUpdateProvider: EntityUpdateProvider = Services.get()
     private val heroes: MutableSet<Entity> = mutableSetOf()
@@ -18,7 +19,7 @@ class HeroEntitiesProvider() : EntitiesProvider {
         entityUpdateProvider.subscribe(entityUpdateEventListener)
     }
 
-    fun dispose() {
+    override fun dispose() {
         entityUpdateProvider.unsubscribe(entityUpdateEventListener)
     }
 
@@ -37,7 +38,7 @@ class HeroEntitiesProvider() : EntitiesProvider {
 
         for (p in 0..9) {
             val heroHandle = playerResource.getEntityProperty<Int>("m_vecPlayerTeamData.%i.m_hSelectedHero", p)
-                    ?: continue
+                ?: continue
             entities.getByHandle(heroHandle)?.let { heroes.add(it) }
         }
     }

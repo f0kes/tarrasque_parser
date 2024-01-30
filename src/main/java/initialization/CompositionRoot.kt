@@ -1,5 +1,8 @@
 package initialization
 
+import components.GameComponent
+import model.enums.Team
+import services.Services
 import services.Services.register
 import services.dtClassesProvider.DtClassesProvider
 import services.entityMapper.EntityMapper
@@ -12,25 +15,44 @@ import services.runnerRegistry.RunnerRegistry
 import services.stringTableProvider.StringTableProvider
 import services.ticker.ITicker
 import services.ticker.Ticker
+import services.visionTracker.VisionTracker
+import skadistats.clarity.Clarity
 
 class CompositionRoot private constructor() {
-    private val initialized = false
+    private var initialized = false
 
-    fun initialize() {
-
-        val runnerRegistry = register<RunnerRegistry>(RunnerRegistry(), true)
+    fun initialize(args: Array<String>) {
+        if (initialized) {
+            throw IllegalStateException("CompositionRoot is already initialized")
+        }
+        val runnerRegistry = register<RunnerRegistry>(RunnerRegistry(args[0]), true)
         val entityMapper = register<IEntityMapper>(EntityMapper("localhost", 6379), true)
-        val updateProvider = register<EntityUpdateProvider>(EntityUpdateProvider(runnerRegistry), true)
-        val dtClassesProvider = register<DtClassesProvider>(DtClassesProvider(runnerRegistry), true)
-        val propertyGetter = register<EntityPropertyGetter>(EntityPropertyGetter(), true)
+        register<EntityUpdateProvider>(EntityUpdateProvider(runnerRegistry), true)
+        register<DtClassesProvider>(DtClassesProvider(runnerRegistry), true)
+        register<EntityPropertyGetter>(EntityPropertyGetter(), true)
         val stringTableProvider = register<StringTableProvider>(StringTableProvider(runnerRegistry, entityMapper), true)
-
-        val ticker = register<ITicker>(Ticker(runnerRegistry), true)
+        register<ITicker>(Ticker(runnerRegistry), true)
         val heroComponentFactory = HeroComponentFactory(HeroEntitiesProvider())
+        val winner = getWinner(runnerRegistry)
+        register<GameComponent>(GameComponent(heroComponentFactory, winner, stringTableProvider), true)
+        register<VisionTracker>(VisionTracker(heroComponentFactory), true)
 
+        initialized = true
+    }
 
-        ticker.subscribeToSecond { tick: Int -> (heroComponentFactory.retrieveHeroComponents()) }
-        //ticker.subscribeToSecond { tick: Int -> (dtClassesProvider.dumpDtClasses()) }
+    private fun getWinner(runnerRegistry: RunnerRegistry): Team {
+        val info = Clarity.infoForFile(runnerRegistry.runningFile)
+        val winnerInt = info.gameInfo.dota.gameWinner
+        val winner = Team.fromInt(winnerInt)
+        return winner
+    }
+
+    fun dispose() {
+        if (!initialized) {
+            throw IllegalStateException("CompositionRoot is not initialized")
+        }
+        Services.dispose()
+        initialized = false
     }
 
     companion object {

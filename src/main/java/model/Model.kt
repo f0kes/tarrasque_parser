@@ -9,6 +9,7 @@ import model.enums.Team
     repeated Npc npc = 2; //21 * 100 = 2100 bytes = 2kb
     repeated Building building = 3; // 6 * 100 = 600 bytes = 1kb
     optional int32 game_time = 4; //4 bytes
+    optional Team winning_team = 5; //1 byte
 
 }*/
 @Serializable
@@ -17,6 +18,7 @@ class GameModel {
     var heroes: List<HeroModel> = listOf()
     var npcs: List<NpcModel> = listOf()
     var buildings: List<BuildingModel> = listOf()
+    var winningTeam: Team = Team.NEUTRAL
 }
 
 /*message Hero
@@ -52,6 +54,7 @@ class HeroModel {
     var items: List<ItemModel> = listOf()
     var networth: Int = 0
     var alive: Boolean = false
+    var lastSeenPosition: PositionModel = PositionModel(0f, 0f, 0f)
 }
 
 
@@ -90,6 +93,10 @@ data class PositionModel(val x: Float, val y: Float, val z: Float) {
     operator fun plus(other: PositionModel): PositionModel {
         return PositionModel(x + other.x, y + other.y, z + other.z)
     }
+
+    fun sqrDistance(other: PositionModel): Float {
+        return (x - other.x) * (x - other.x) + (y - other.y) * (y - other.y) + (z - other.z) * (z - other.z)
+    }
 }
 
 /*message Ability
@@ -100,6 +107,8 @@ data class PositionModel(val x: Float, val y: Float, val z: Float) {
 @Serializable
 class AbilityModel {
     var cooldown: Float = 0f
+    var level: Int = 0
+    var abilityId: Int = 0
 }
 
 /*message Item
@@ -111,7 +120,7 @@ class AbilityModel {
 @Serializable
 class ItemModel {
     var itemId: Int = 0
-    var cooldown: Boolean = false
+    var cooldown: Float = 0f
 }
 
 /*message Building

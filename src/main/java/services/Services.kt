@@ -1,6 +1,6 @@
 package services
 
-object Services {
+object Services : Disposable {
     private val services_map: MutableMap<Class<*>, Any> = HashMap()
 
 
@@ -38,6 +38,13 @@ object Services {
     }
 
     fun clear() {
+
         services_map.clear()
     }
+
+    override fun dispose() {
+        services_map.values.forEach { if (it is Disposable) it.dispose() }
+        services_map.clear()
+    }
+
 }

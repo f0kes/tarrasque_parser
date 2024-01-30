@@ -1,5 +1,6 @@
 package services.stringTableProvider
 
+import benchmarks.Benchmark
 import runner.Runner
 import services.entityMapper.EntityMapper
 import services.entityMapper.IEntityMapper
@@ -20,13 +21,20 @@ class StringTableProvider(runnerRegistry: RunnerRegistry, private val entityMapp
     fun getEntityName(entity: Entity): String? {
         if (stringTables == null) return null
         val nameIndex = entity.getProperty<Int>("m_pEntity.m_nameStringableIndex") ?: return null
+        if (nameIndex == -1) return null
         return stringTables.forName("EntityNames").getNameByIndex(nameIndex)?.toString()
     }
 
-    fun getEntityNameId(entity: Entity): Int? {
+    fun getEntityNameId(prefix: String, entity: Entity): Int? {
         if (stringTables == null) return null
         val name = getEntityName(entity) ?: return null
-        return entityMapper.getId(name)
+        return entityMapper.getId(prefix, name)
+    }
+
+    fun getEntityDTClassId(prefix: String, entity: Entity): Int? {
+        if (stringTables == null) return null
+        val dtName = entity.dtClass?.dtName ?: return null
+        return entityMapper.getId("${prefix}_dt_", dtName)
     }
 
     fun dumpEntityNames() {

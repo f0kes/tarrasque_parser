@@ -54,7 +54,7 @@ message Ability
 message Item
 {
   optional int32 item_id = 1;
-  optional bool cooldown = 3;
+  optional float cooldown = 3;
 }
 message Building
 {

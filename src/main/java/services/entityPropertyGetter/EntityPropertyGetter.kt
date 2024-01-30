@@ -1,5 +1,6 @@
 package services.entityPropertyGetter
 
+import model.PositionModel
 import services.entityUpdateProvider.EntityUpdate
 import skadistats.clarity.io.Util
 import skadistats.clarity.model.Entity
@@ -38,6 +39,29 @@ fun <T> Entity.getPropertyIfChanged(update: EntityUpdate, property: String, idx:
         return getEntityProperty(property, idx)
     }
     return null
+}
+
+fun Entity.getPosition(): PositionModel {
+    val x = getPositionCoordinate("X")
+    val y = getPositionCoordinate("Y")
+    val z = getPositionCoordinate("Z")
+    val position = PositionModel(x, y, z)
+    return position
+}
+
+fun Entity.getCell(): PositionModel? {
+    val x = this.getEntityProperty<Int>("CBodyComponent.m_cellX")
+    val y = this.getEntityProperty<Int>("CBodyComponent.m_cellY")
+    val z = this.getEntityProperty<Int>("CBodyComponent.m_cellZ")
+    if (x == null || y == null || z == null) return null
+    return PositionModel(x.toFloat(), y.toFloat(), z.toFloat())
+}
+
+fun Entity.getPositionCoordinate(c: String): Float {
+    val cell = this.getEntityProperty<Int>("CBodyComponent.m_cell${c}")
+    val vec = this.getEntityProperty<Float>("CBodyComponent.m_vec${c}")
+    if (cell == null || vec == null) return 0f
+    return cell * 128.0f + vec;
 }
 
 fun String.formatProperty(idx: Int? = null): String {

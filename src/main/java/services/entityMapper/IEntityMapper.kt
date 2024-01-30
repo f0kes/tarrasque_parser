@@ -1,6 +1,6 @@
 package services.entityMapper
 
 interface IEntityMapper {
-    fun getId(enumString: String): Int
-    fun getString(enumId: Int): String?
+    fun getId(typePrefix: String, enumString: String): Int
+    fun getString(typePrefix: String, enumId: Int): String?
 }
