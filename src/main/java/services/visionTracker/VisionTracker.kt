@@ -1,5 +1,6 @@
 package services.visionTracker
 
+import benchmarks.Benchmark
 import model.enums.Team
 import services.Services.get
 import services.entityPropertyGetter.getCell
@@ -31,11 +32,14 @@ class VisionTracker(private val heroComponentFactory: HeroComponentFactory) {
         for (entity in entities.getAllByPredicate { e -> isEntityProvidingVision(e) }) {
             val team = Team.fromInt(entity.getEntityProperty<Int>("m_iTeamNum") ?: -1)
             val position = entity.getPosition()
+
             val dayVision = entity.getEntityProperty<Int>("m_iDayTimeVisionRange") ?: 0
             val nightVision = entity.getEntityProperty<Int>("m_iNightTimeVisionRange") ?: 0
             val vision = if (isDayTime()) dayVision else nightVision
+
             val visionRange = vision.toFloat()
             val visionRangeSquared = visionRange * visionRange
+
             for (heroComponent in heroComponentFactory.retrieveHeroComponents()) {
                 val otherTeam = heroComponent.heroModel.team
                 if (team == otherTeam) continue
@@ -43,13 +47,7 @@ class VisionTracker(private val heroComponentFactory: HeroComponentFactory) {
                 if (position.z < otherPosition.z) continue
                 val distanceSquared = position.sqrDistance(otherPosition)
                 if (distanceSquared <= visionRangeSquared) {
-                    heroComponent.markSeen()/*                    println(
-                                            "Hero ${stringTableProvider.getEntityName(heroComponent.heroEntity)},pos:${otherPosition} seen by ${
-                                                stringTableProvider.getEntityName(
-                                                    entity
-                                                )
-                                            } (${position})"
-                                        )*/
+                    heroComponent.markSeen()
                 }
             }
         }

@@ -1,5 +1,6 @@
 package components
 
+import benchmarks.Benchmark
 import kotlinx.serialization.json.Json
 import model.*
 import model.enums.Team
@@ -33,6 +34,7 @@ class GameComponent(
 
 
     private fun onSecond(time: Int) {
+        Benchmark.start("GameComponent")
         model.gameTime = time
         model.heroes = heroComponentFactory.retrieveHeroComponents().map { it.heroModel }
         model.npcs = retrieveNpcs()
@@ -40,9 +42,10 @@ class GameComponent(
             //writeModelJSONToFile(time.toString())
         }
         writeModelJSONToFile(time.toString())
+        Benchmark.stop("GameComponent")
     }
 
-    
+
     private fun createNpcHeroModel(entity: Entity): NpcModel? {
         val npcModel = NpcModel()
         npcModel.npcId = stringTableProvider.getEntityNameId("npc", entity) ?: npcModel.npcId
@@ -55,13 +58,13 @@ class GameComponent(
         return npcModel
     }
 
-    
+
     private fun isEntityNpc(entity: Entity): Boolean {
         val dtName = entity.dtClass?.dtName ?: return false
         return dtName.contains("npc", ignoreCase = true)
     }
 
-    
+
     private fun retrieveNpcs(): List<NpcModel> {
         val entities = Services.get<EntityUpdateProvider>().entities ?: return emptyList()
         val npcs = mutableListOf<NpcModel>()
@@ -73,13 +76,12 @@ class GameComponent(
     }
 
 
-    
     override fun retrieveModel(): GameModel {
         return model
     }
 
     //todo: remove
-    
+
     private fun writeModelJSONToFile(prefix: String, path: String = "src/main/resources/") {
 
         val model = retrieveModel()

@@ -22,6 +22,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.6.2")
     implementation("redis.clients:jedis:4.3.0") // Check for the latest version
+    implementation("io.ktor:ktor-server-core:2.3.7")
+    implementation("io.ktor:ktor-server-netty:2.3.7")
+    implementation("io.ktor:ktor-server-host-common:2.3.7")
+    implementation("io.insert-koin:koin-core:3.5.0")
 
 }
 
