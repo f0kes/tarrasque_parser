@@ -15,27 +15,28 @@ import services.heroComponentFactory.HeroComponentFactory
 import services.entityProvider.HeroEntitiesProvider
 import components.GameComponent
 import model.enums.Team
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.scopedOf
+import org.koin.ktor.plugin.RequestScope
+import services.inputStreamProcessor.InputStreamProcessor
 import skadistats.clarity.Clarity
 
-val myModule = module {
-    single { params -> RunnerRegistry(params[0]) }
+val defaultComposition = module {
+
     single<IEntityMapper> { EntityMapper("localhost", 6379) }
-    single { EntityUpdateProvider(get()) }
-    single { DtClassesProvider(get()) }
     single { EntityPropertyGetter() }
-    single { StringTableProvider(get(), get()) }
-    single<ITicker> { Ticker(get()) }
-    single { HeroComponentFactory(HeroEntitiesProvider()) }
-    single { GameComponent(get(), getWinner(get()), get()) }
-    single { VisionTracker(get()) }
-    single { params -> getWinner(params[0]) }
+    scope<RequestScope>
+    {
+        scopedOf(::RunnerRegistry)
+        scopedOf(::InputStreamProcessor)
+        scopedOf(::EntityUpdateProvider)
+        scopedOf(::StringTableProvider)
+        scopedOf(::Ticker) { bind<ITicker>() }
+        scopedOf(::HeroEntitiesProvider)
+        scopedOf(::HeroComponentFactory)
+        scopedOf(::GameComponent)
+        scopedOf(::VisionTracker)
+        scopedOf(::DtClassesProvider)
+    }
 }
 
-fun getWinner(file: String): Team {
-    val info = Clarity.infoForFile(file)
-    val winnerInt = info.gameInfo.dota.gameWinner
-    return Team.fromInt(winnerInt)
-}
-
-class KoinCompostionRoot {
-}

@@ -25,7 +25,9 @@ dependencies {
     implementation("io.ktor:ktor-server-core:2.3.7")
     implementation("io.ktor:ktor-server-netty:2.3.7")
     implementation("io.ktor:ktor-server-host-common:2.3.7")
+    implementation("io.ktor:ktor-server-status-pages:2.3.7")
     implementation("io.insert-koin:koin-core:3.5.0")
+    implementation("io.insert-koin:koin-ktor:3.5.0")
 
 }
 

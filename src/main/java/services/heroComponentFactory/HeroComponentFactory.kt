@@ -2,9 +2,17 @@ package services.heroComponentFactory
 
 import components.HeroComponent
 import services.entityProvider.HeroEntitiesProvider
+import services.entityUpdateProvider.EntityUpdateProvider
+import services.stringTableProvider.StringTableProvider
+import services.ticker.ITicker
 import skadistats.clarity.model.Entity
 
-class HeroComponentFactory(private val entitiesProvider: HeroEntitiesProvider) {
+class HeroComponentFactory(
+    private val entitiesProvider: HeroEntitiesProvider,
+    private val ticker: ITicker,
+    private val stringTableProvider: StringTableProvider,
+    private val entityUpdateProvider: EntityUpdateProvider
+) {
     //private var heroComponents: MutableList<HeroComponent> = mutableListOf()
     private val entityToComponentMap: MutableMap<Entity, HeroComponent> = mutableMapOf()
     private var lastEntitiesSet: MutableSet<Entity> = mutableSetOf()
@@ -16,7 +24,7 @@ class HeroComponentFactory(private val entitiesProvider: HeroEntitiesProvider) {
         for (entity in entities) {
             newEntitiesSet.add(entity)
             if (entityToComponentMap.contains(entity)) continue
-            val heroComponent = HeroComponent(entity)
+            val heroComponent = HeroComponent(entity, ticker, stringTableProvider, entityUpdateProvider)
             entityToComponentMap[entity] = heroComponent
         }
         for (entity in lastEntitiesSet) {

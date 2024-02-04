@@ -1,8 +1,7 @@
 package services.runnerRegistry
 
-class RunnerRegistry(val runningFile: String) {
+class RunnerRegistry() {
     private val runners: MutableList<Any> = ArrayList()
-
 
     fun register(runner: Any) {
         runners.add(runner)

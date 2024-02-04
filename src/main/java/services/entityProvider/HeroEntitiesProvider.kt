@@ -1,16 +1,14 @@
 package services.entityProvider
 
 import services.Disposable
-import services.Services
 import services.entityPropertyGetter.getEntityProperty
 import services.entityUpdateProvider.EntityUpdate
 import services.entityUpdateProvider.EntityUpdateProvider
 import skadistats.clarity.model.Entity
 
 
-class HeroEntitiesProvider() : EntitiesProvider, Disposable {
+class HeroEntitiesProvider(private val entityUpdateProvider: EntityUpdateProvider) : EntitiesProvider, Disposable {
 
-    private val entityUpdateProvider: EntityUpdateProvider = Services.get()
     private val heroes: MutableSet<Entity> = mutableSetOf()
     private val entityUpdateEventListener = { upd: EntityUpdate -> onEntityUpdate(upd) }
     private var isDirty: Boolean = true

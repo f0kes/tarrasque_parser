@@ -4,10 +4,11 @@ import benchmarks.Benchmark
 import kotlinx.serialization.json.Json
 import model.*
 import model.enums.Team
-import services.Services
+
 import services.entityPropertyGetter.getPosition
 import services.entityUpdateProvider.EntityUpdateProvider
 import services.heroComponentFactory.HeroComponentFactory
+import services.inputStreamProcessor.InputStreamProcessor
 import services.stringTableProvider.StringTableProvider
 import services.ticker.ITicker
 import skadistats.clarity.model.Entity
@@ -15,17 +16,16 @@ import java.io.File
 
 class GameComponent(
     private val heroComponentFactory: HeroComponentFactory,
-    private val winner: Team,
     private val stringTableProvider: StringTableProvider,
-
-    ) : Component<GameModel> {
+    private val inputStreamProcessor: InputStreamProcessor,
+    private val ticker: ITicker,
+    private val entityUpdateProvider: EntityUpdateProvider
+) : Component<GameModel> {
     val model: GameModel = GameModel()
-    private val ticker = Services.get<ITicker>()
     private val secondEventListener = { time: Int -> this.onSecond(time) }
 
     init {
         ticker.subscribeToSecond(secondEventListener)
-        model.winningTeam = winner
     }
 
     fun dispose() {
@@ -35,6 +35,7 @@ class GameComponent(
 
     private fun onSecond(time: Int) {
         Benchmark.start("GameComponent")
+        model.winningTeam = inputStreamProcessor.getWinner()
         model.gameTime = time
         model.heroes = heroComponentFactory.retrieveHeroComponents().map { it.heroModel }
         model.npcs = retrieveNpcs()
@@ -43,6 +44,7 @@ class GameComponent(
         }
         writeModelJSONToFile(time.toString())
         Benchmark.stop("GameComponent")
+        println(model.gameTime)
     }
 
 
@@ -66,7 +68,7 @@ class GameComponent(
 
 
     private fun retrieveNpcs(): List<NpcModel> {
-        val entities = Services.get<EntityUpdateProvider>().entities ?: return emptyList()
+        val entities = entityUpdateProvider.entities ?: return emptyList()
         val npcs = mutableListOf<NpcModel>()
         for (entity in entities.getAllByPredicate { e -> isEntityNpc(e) }) {
             val npcModel = createNpcHeroModel(entity) ?: continue

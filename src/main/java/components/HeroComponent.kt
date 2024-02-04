@@ -5,7 +5,6 @@ import benchmarks.Benchmark
 import kotlinx.serialization.json.Json
 import model.*
 import model.enums.Team
-import services.Services.get
 import services.entityPropertyGetter.getEntityProperty
 import services.entityPropertyGetter.getPosition
 import services.entityUpdateProvider.EntityUpdateProvider
@@ -15,13 +14,15 @@ import skadistats.clarity.model.Entity
 import java.io.File
 
 
-class HeroComponent(val heroEntity: Entity) : Component<HeroModel> {
+class HeroComponent(
+    val heroEntity: Entity,
+    private val ticker: ITicker,
+    private val stringTableProvider: StringTableProvider,
+    private val entityUpdateProvider: EntityUpdateProvider
+) : Component<HeroModel> {
     val heroModel: HeroModel = HeroModel()
     private val secondEventListener = { time: Int -> this.onSecond(time) }
 
-    private val stringTableProvider: StringTableProvider = get<StringTableProvider>()
-    private val ticker = get<ITicker>()
-    private val entityUpdateProvider = get<EntityUpdateProvider>()
     private var abilityEntities = getAbilityEntities()
 
     init {

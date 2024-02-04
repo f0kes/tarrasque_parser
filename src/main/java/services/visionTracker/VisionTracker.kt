@@ -1,9 +1,6 @@
 package services.visionTracker
 
-import benchmarks.Benchmark
 import model.enums.Team
-import services.Services.get
-import services.entityPropertyGetter.getCell
 import services.entityPropertyGetter.getEntityProperty
 import services.entityPropertyGetter.getPosition
 import services.entityUpdateProvider.EntityUpdateProvider
@@ -12,11 +9,13 @@ import services.stringTableProvider.StringTableProvider
 import services.ticker.ITicker
 import skadistats.clarity.model.Entity
 
-class VisionTracker(private val heroComponentFactory: HeroComponentFactory) {
-    private val ticker = get<ITicker>()
-    private val entitiesProvider = get<EntityUpdateProvider>()
+class VisionTracker(
+    private val heroComponentFactory: HeroComponentFactory,
+    private val ticker: ITicker,
+    private val entitiesProvider: EntityUpdateProvider,
+    private val stringTableProvider: StringTableProvider
+) {
     private val secondEventListener = { time: Int -> this.onSecond(time) }
-    private val stringTableProvider = get<StringTableProvider>()
 
     init {
         ticker.subscribeToSecond(secondEventListener)
