@@ -1,9 +1,11 @@
 package services.entityMapper
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import redis.clients.jedis.Jedis
 
+//TODO: concurrency issues
 class EntityMapper(redisHost: String, redisPort: Int) : IEntityMapper {
     private val jedis = Jedis(redisHost, redisPort)
     private val cache = cacheAllTables()
@@ -93,10 +95,12 @@ class EntityMapper(redisHost: String, redisPort: Int) : IEntityMapper {
         return ExportData(prefixes)
     }
 
+    @Serializable
     private data class ExportData(
         var prefixes: MutableMap<String, PrefixData>
     )
 
+    @Serializable
     private data class PrefixData(
         var nextId: Int,
         var stringToInt: MutableMap<String, Int>,

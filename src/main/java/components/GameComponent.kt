@@ -1,6 +1,5 @@
 package components
 
-import benchmarks.Benchmark
 import kotlinx.serialization.json.Json
 import model.*
 import model.enums.Team
@@ -19,7 +18,8 @@ class GameComponent(
     private val stringTableProvider: StringTableProvider,
     private val inputStreamProcessor: InputStreamProcessor,
     private val ticker: ITicker,
-    private val entityUpdateProvider: EntityUpdateProvider
+    private val entityUpdateProvider: EntityUpdateProvider,
+    private val fullModel: FullModel
 ) : Component<GameModel> {
     val model: GameModel = GameModel()
     private val secondEventListener = { time: Int -> this.onSecond(time) }
@@ -34,17 +34,14 @@ class GameComponent(
 
 
     private fun onSecond(time: Int) {
-        Benchmark.start("GameComponent")
-        model.winningTeam = inputStreamProcessor.getWinner()
         model.gameTime = time
         model.heroes = heroComponentFactory.retrieveHeroComponents().map { it.heroModel }
         model.npcs = retrieveNpcs()
         if (time % 60 == 0) {
             //writeModelJSONToFile(time.toString())
         }
-        writeModelJSONToFile(time.toString())
-        Benchmark.stop("GameComponent")
-        println(model.gameTime)
+        //writeModelJSONToFile(time.toString())
+        fullModel.snapshots.add(model)
     }
 
 

@@ -13,12 +13,18 @@ import model.enums.Team
 
 }*/
 @Serializable
+class FullModel {
+    var matchId: Long = 0
+    var winner: Team = Team.NEUTRAL
+    var snapshots: MutableList<GameModel> = mutableListOf()
+}
+
+@Serializable
 class GameModel {
     var gameTime: Int = 0
     var heroes: List<HeroModel> = listOf()
     var npcs: List<NpcModel> = listOf()
     var buildings: List<BuildingModel> = listOf()
-    var winningTeam: Team = Team.NEUTRAL
 }
 
 /*message Hero

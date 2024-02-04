@@ -12,9 +12,12 @@ import io.ktor.server.plugins.statuspages.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import model.FullModel
 import org.koin.ktor.plugin.Koin
 import org.koin.ktor.plugin.scope
+import services.entityMapper.EntityMapper
 import services.inputStreamProcessor.InputStreamProcessor
 import java.io.InputStream
 
@@ -33,23 +36,56 @@ fun main(args: Array<String>) {
 
         routing {
             post("/upload") {
-                println("Uploading file...")
-                val inputStream = call.receiveStream()
-                coroutineScope {
-                    val deferred = async(Dispatchers.IO) { call.uploadStream(inputStream) }
-                    deferred.await()
-                }
-
-                call.respondText("File uploaded successfully", status = HttpStatusCode.OK)
+                call.upload()
+            }
+            get("/health") {
+                call.respondText("OK", status = HttpStatusCode.OK)
+            }
+            get("/getTables") {
+                call.getTables()
+            }
+            get("/")
+            {
+                call.respondText("endpoints: /upload, /health, /getTables", status = HttpStatusCode.OK)
             }
         }
     }.start(wait = true)
 }
 
-suspend fun ApplicationCall.uploadStream(inputStream: InputStream) {
+suspend fun ApplicationCall.upload() {
+    val inputStream = receiveStream()
+    coroutineScope {
+        val deferred = async(Dispatchers.IO) { runWithStream(inputStream) }
+        deferred.await()
+    }
+    respond()
+}
+
+suspend fun ApplicationCall.getTables() {
+    val entityMapper = scope.get<EntityMapper>()
+    val tables = entityMapper.exportAllTables()
+    respond(
+        HttpStatusCode.OK, tables
+    )
+}
+
+suspend fun ApplicationCall.runWithStream(inputStream: InputStream) {
     val inputStreamProcessor = scope.get<InputStreamProcessor>()
     scope.get<GameComponent>()
     inputStreamProcessor.run(inputStream)
+}
+
+suspend fun ApplicationCall.respond() {
+    val inputStreamProcessor = scope.get<InputStreamProcessor>()
+    val winner = inputStreamProcessor.getWinner()
+    val matchId = inputStreamProcessor.getMatchId()
+    val fullModel = scope.get<FullModel>()
+    fullModel.matchId = matchId
+    fullModel.winner = winner
+    val json = Json.encodeToString(fullModel)
+    respond(
+        HttpStatusCode.OK, json
+    )
 }
 
 fun printStackTrace(cause: Throwable) {

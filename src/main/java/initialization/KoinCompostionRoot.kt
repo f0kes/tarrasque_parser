@@ -14,12 +14,12 @@ import services.visionTracker.VisionTracker
 import services.heroComponentFactory.HeroComponentFactory
 import services.entityProvider.HeroEntitiesProvider
 import components.GameComponent
-import model.enums.Team
+import model.FullModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.scopedOf
 import org.koin.ktor.plugin.RequestScope
 import services.inputStreamProcessor.InputStreamProcessor
-import skadistats.clarity.Clarity
+
 
 val defaultComposition = module {
 
@@ -28,6 +28,7 @@ val defaultComposition = module {
     scope<RequestScope>
     {
         scopedOf(::RunnerRegistry)
+        scopedOf(::FullModel)
         scopedOf(::InputStreamProcessor)
         scopedOf(::EntityUpdateProvider)
         scopedOf(::StringTableProvider)
