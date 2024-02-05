@@ -41,7 +41,7 @@ class GameComponent(
             //writeModelJSONToFile(time.toString())
         }
         //writeModelJSONToFile(time.toString())
-        fullModel.snapshots.add(model)
+        fullModel.snapshots.add(model.copy())
     }
 
 

@@ -12,18 +12,21 @@ import services.ticker.ITicker
 import services.ticker.Ticker
 import services.visionTracker.VisionTracker
 import services.heroComponentFactory.HeroComponentFactory
-import services.entityProvider.HeroEntitiesProvider
+import services.entityProvider.*
 import components.GameComponent
 import model.FullModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.scopedOf
+import org.koin.core.module.dsl.singleOf
 import org.koin.ktor.plugin.RequestScope
 import services.inputStreamProcessor.InputStreamProcessor
-
+import services.demoInfoProvider.DemoInfoProvider
+import services.entityProvider.HeroEntitiesProvider
 
 val defaultComposition = module {
 
     single<IEntityMapper> { EntityMapper("localhost", 6379) }
+
     single { EntityPropertyGetter() }
     scope<RequestScope>
     {
@@ -33,11 +36,12 @@ val defaultComposition = module {
         scopedOf(::EntityUpdateProvider)
         scopedOf(::StringTableProvider)
         scopedOf(::Ticker) { bind<ITicker>() }
-        scopedOf(::HeroEntitiesProvider)
+        scopedOf(::HeroEntitiesProviderByDTClass) { bind<HeroEntitiesProvider>() }
         scopedOf(::HeroComponentFactory)
         scopedOf(::GameComponent)
         scopedOf(::VisionTracker)
         scopedOf(::DtClassesProvider)
+        scopedOf(::DemoInfoProvider)
     }
 }
 

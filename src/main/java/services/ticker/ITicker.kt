@@ -7,5 +7,6 @@ interface ITicker {
     fun unsubscribeFromTick(tickListener: EventListener<Int>)
     fun subscribeToSecond(secondListener: EventListener<Int>)
     fun unsubscribeFromSecond(secondListener: EventListener<Int>)
+    fun deferToTick(action: () -> Unit)
     fun getServerTime(): Int
 }

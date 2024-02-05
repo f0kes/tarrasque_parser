@@ -5,20 +5,16 @@ import services.runnerRegistry.RunnerRegistry
 import skadistats.clarity.Clarity
 import skadistats.clarity.processor.runner.SimpleRunner
 import skadistats.clarity.source.InputStreamSource
+import java.io.BufferedInputStream
 import java.io.InputStream
 
 class InputStreamProcessor(private val runnerRegistry: RunnerRegistry) {
-    private var inputStream: InputStream? = null
+    private var inputStream: BufferedInputStream? = null
     private var winner: Team = Team.NEUTRAL
     private var matchId: Long = 0
     fun run(instr: InputStream) {
-        inputStream = instr
-        val runner = SimpleRunner(InputStreamSource(instr))
-       // val info = Clarity.infoForStream(instr)
-        //val winnerInt = info.gameInfo.dota.gameWinner
-        //winner = Team.fromInt(winnerInt)
-
-        //matchId = info.gameInfo.dota.matchId
+        inputStream = BufferedInputStream(instr)
+        val runner = SimpleRunner(InputStreamSource(inputStream))
         runner.runWith(*runnerRegistry.getRunners().toTypedArray())
     }
 

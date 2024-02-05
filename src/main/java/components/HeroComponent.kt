@@ -41,7 +41,7 @@ class HeroComponent(
 
 
     private fun onSecond(time: Int) {
-        Benchmark.start("HeroComponent")
+
         heroModel.maxHealth = heroEntity.getEntityProperty<Int>("m_iMaxHealth")?.toFloat() ?: heroModel.maxHealth
         heroModel.level = heroEntity.getEntityProperty<Int>("m_iCurrentLevel") ?: heroModel.level
         heroModel.heroId = stringTableProvider.getEntityNameId("hero", heroEntity) ?: heroModel.heroId
@@ -54,8 +54,6 @@ class HeroComponent(
         heroModel.alive = heroModel.health > 0
         heroModel.seenAgo += 1
         heroModel.abilities = retrieveAbilityModels()
-        Benchmark.stop("HeroComponent")
-        //todo: remove
 
     }
 

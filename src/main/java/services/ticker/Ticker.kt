@@ -10,7 +10,6 @@ import skadistats.clarity.processor.entities.Entities
 import skadistats.clarity.processor.entities.UsesEntities
 import skadistats.clarity.processor.reader.OnMessage
 import skadistats.clarity.processor.reader.OnTickEnd
-import skadistats.clarity.processor.reader.OnTickStart
 import skadistats.clarity.wire.shared.common.proto.CommonNetworkBaseTypes
 
 @UsesEntities
@@ -18,7 +17,8 @@ class Ticker(runnerRegistry: RunnerRegistry) : ITicker, Runner(runnerRegistry) {
     private val tickEvent = Event<Int>()
     private val secondEvent = Event<Int>()
     private var serverTick = 0
-    private var lastSecondTickTime: Int = 0
+    private var lastSecondTickTime: Float = -888f
+    private val deferedActions: MutableList<() -> Unit> = mutableListOf()
 
     @Insert
     private val entities: Entities? = null
@@ -36,6 +36,10 @@ class Ticker(runnerRegistry: RunnerRegistry) : ITicker, Runner(runnerRegistry) {
 
     override fun unsubscribeFromSecond(secondListener: EventListener<Int>) {
         secondEvent.unsubscribe(secondListener)
+    }
+
+    override fun deferToTick(action: () -> Unit) {
+        deferedActions.add(action)
     }
 
     private val time: Float
@@ -72,9 +76,13 @@ class Ticker(runnerRegistry: RunnerRegistry) : ITicker, Runner(runnerRegistry) {
     @OnTickEnd
     protected fun onTickEnd(synthetic: Boolean) { //TODO: check for pause
         tickEvent.invoke(serverTick)
-        if (serverTick % 30 == 0 && time.toInt() > lastSecondTickTime) {
+        for (action in deferedActions) {
+            action.invoke()
+        }
+        deferedActions.clear()
+        if (time > lastSecondTickTime + 1) {
             secondEvent.invoke(time.toInt())
-            lastSecondTickTime = time.toInt()
+            lastSecondTickTime = time
         }
     }
 

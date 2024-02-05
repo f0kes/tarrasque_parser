@@ -4,26 +4,26 @@ import services.Disposable
 import services.entityUpdateProvider.EntityUpdate
 import services.entityUpdateProvider.EntityUpdateProvider
 import skadistats.clarity.model.Entity
+import skadistats.clarity.util.Predicate
 
-//todo: remove code duplication
-class PredicateEntityProvider(private val entityUpdateProvider:EntityUpdateProvider) : EntitiesProvider, Disposable {
-    private val npcs: MutableSet<Entity> = mutableSetOf()
-    private val entityUpdateEventListener = { upd: EntityUpdate -> onEntityUpdate(upd) }
-
-    init {
-        entityUpdateProvider.subscribe(entityUpdateEventListener)
-    }
-
+class PredicateEntityProvider(
+    private val entityUpdateProvider: EntityUpdateProvider, private val predicate: Predicate<Entity>
+) : EntitiesProvider, Disposable {
     override fun dispose() {
-        entityUpdateProvider.unsubscribe(entityUpdateEventListener)
-    }
-
-    private fun onEntityUpdate(entityUpdate: EntityUpdate) {
 
     }
 
     override fun retrieveEntities(): List<Entity> {
-        return listOf()
+        val result = mutableListOf<Entity>()
+        if (entityUpdateProvider.entities != null) {
+            for (e in entityUpdateProvider.entities.getAllByPredicate(predicate)) {
+                result.add(e)
+            }
+        }
+        return result
     }
 
+
 }
+
+

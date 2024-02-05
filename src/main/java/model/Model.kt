@@ -20,11 +20,12 @@ class FullModel {
 }
 
 @Serializable
-class GameModel {
-    var gameTime: Int = 0
-    var heroes: List<HeroModel> = listOf()
-    var npcs: List<NpcModel> = listOf()
+data class GameModel(
+    var gameTime: Int = 0,
+    var heroes: List<HeroModel> = listOf(),
+    var npcs: List<NpcModel> = listOf(),
     var buildings: List<BuildingModel> = listOf()
+) {
 }
 
 /*message Hero

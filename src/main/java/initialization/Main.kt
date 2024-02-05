@@ -15,9 +15,14 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import model.FullModel
+import model.enums.Team
+import org.koin.core.context.GlobalContext.get
+import org.koin.ktor.ext.inject
 import org.koin.ktor.plugin.Koin
 import org.koin.ktor.plugin.scope
+import services.demoInfoProvider.DemoInfoProvider
 import services.entityMapper.EntityMapper
+import services.entityMapper.IEntityMapper
 import services.inputStreamProcessor.InputStreamProcessor
 import java.io.InputStream
 
@@ -62,7 +67,8 @@ suspend fun ApplicationCall.upload() {
 }
 
 suspend fun ApplicationCall.getTables() {
-    val entityMapper = scope.get<EntityMapper>()
+
+    val entityMapper by inject<IEntityMapper>()
     val tables = entityMapper.exportAllTables()
     respond(
         HttpStatusCode.OK, tables
@@ -72,16 +78,19 @@ suspend fun ApplicationCall.getTables() {
 suspend fun ApplicationCall.runWithStream(inputStream: InputStream) {
     val inputStreamProcessor = scope.get<InputStreamProcessor>()
     scope.get<GameComponent>()
+    scope.get<DemoInfoProvider>()
     inputStreamProcessor.run(inputStream)
 }
 
 suspend fun ApplicationCall.respond() {
-    val inputStreamProcessor = scope.get<InputStreamProcessor>()
-    val winner = inputStreamProcessor.getWinner()
-    val matchId = inputStreamProcessor.getMatchId()
+    val infoProvider = scope.get<DemoInfoProvider>()
+    val winner = infoProvider.demoFileInfo?.gameInfo?.dota?.gameWinner
+    val matchId = infoProvider.demoFileInfo?.gameInfo?.dota?.matchId
     val fullModel = scope.get<FullModel>()
-    fullModel.matchId = matchId
-    fullModel.winner = winner
+
+    fullModel.winner = Team.fromInt(winner ?: -1)
+    fullModel.matchId = matchId ?: -1
+
     val json = Json.encodeToString(fullModel)
     respond(
         HttpStatusCode.OK, json

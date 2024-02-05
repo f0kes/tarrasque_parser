@@ -73,7 +73,7 @@ class EntityMapper(redisHost: String, redisPort: Int) : IEntityMapper {
         return Json.encodeToString(exportData)
     }
 
-    fun exportAllTables(): String {
+    override fun exportAllTables(): String {
         return Json.encodeToString(cacheAllTables())
     }
 

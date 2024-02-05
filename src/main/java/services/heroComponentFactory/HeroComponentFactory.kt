@@ -1,6 +1,7 @@
 package services.heroComponentFactory
 
 import components.HeroComponent
+import services.entityProvider.EntitiesProvider
 import services.entityProvider.HeroEntitiesProvider
 import services.entityUpdateProvider.EntityUpdateProvider
 import services.stringTableProvider.StringTableProvider
